@@ -1,0 +1,2 @@
+# gocomp
+Go Competition
