@@ -1555,13 +1555,13 @@ display affected_MW;
 scalar proportion_time_for_final_nlp /0.2/;
 
 $ifthen %timelimit% == 600
-lin_P_model.reslim=20;
-lin_Q_model.reslim=20;
+lin_P_model.reslim=30;
+lin_Q_model.reslim=30;
 proportion_time_for_final_nlp = 0.5;
 $else
 lin_P_model.reslim=50;
 lin_Q_model.reslim=50;
-proportion_time_for_final_nlp = 0.2;
+proportion_time_for_final_nlp = 0.3;
 $endif
 
 set select_iter /selit1*selit%topncont%/;
@@ -1714,7 +1714,7 @@ time_remaining = avail_time - (timeelapsed - all_start);
 
 ext_single_cont.solprint = no;
 ext_single_cont.optfile = 1;
-ext_single_cont.reslim = time_remaining - 20;
+ext_single_cont.reslim = time_remaining - 60;
 
 activek(k) = yes$(selected_cont_priority(k) > 0 and selected_cont_priority(k) <= how_many_cont_looked);
 display activek;
