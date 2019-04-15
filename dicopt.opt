@@ -1,0 +1,4 @@
+mipoptfile=1
+mipsolver=cplex
+nlpoptfile=1
+nlpsolver=conopt

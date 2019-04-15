@@ -1,0 +1,2 @@
+par=BusSol rng=BusSection!A1 Rdim=1 Cdim=1  Dset=BusSolInfo rng=BusSection!A1 Cdim=1 Dset=Bus rng=BusSection!A2 Rdim=1
+par=GeneratorSol rng=GeneratorSection!A1 Rdim=2 Cdim=1  Dset=GenSolInfo rng=GeneratorSection!A1 Cdim=1 Dset=Gendrator rng=GeneratorSection!B2 Rdim=1
