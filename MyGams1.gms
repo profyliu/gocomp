@@ -14,10 +14,11 @@ $if not set NetworkModel $set NetworkModel model_name
 
 $if not set havedata $set havedata no
 $if not set ncores $set ncores 24
-$if not set topncont $set topncont 50
+$if not set topncont $set topncont 200
 
 option threads=%ncores%;
 option nlp=conopt4, mip=cplex;
+option limrow=0,limcol=0;
 
 scalar
     all_start
@@ -1099,9 +1100,7 @@ model ext_single_cont /
 
 /;
 
-*v_pg.fx('BUS1','GEN1') = 1.7;
 
-option limrow=0,limcol=0;
 ext_base_only.solprint = yes;
 ext_base_only.optfile=1;
 ext_base_only.solvelink=5;
