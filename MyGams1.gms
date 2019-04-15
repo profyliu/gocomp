@@ -17,6 +17,7 @@ $if not set ncores $set ncores 24
 $if not set topncont $set topncont 50
 
 option threads=%ncores%;
+option nlp=conopt4, mip=cplex;
 
 scalar
     all_start
