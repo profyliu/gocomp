@@ -1,5 +1,0 @@
-Set=ContingencyLabel Values=NoData rng=ContingencyLabel!B2 Rdim=1
-Set=BranchOutofServiceEvent Values=NoData rng=BranchOutofServiceEvent!B2 Rdim=4
-Set=GeneratorOutofServiceEvent Values=NoData rng=GeneratorOutofServiceEvent!B2 Rdim=3
-Set=BranchConIJCKT Values=NoData rng=BranchOutofServiceEvent!B2 Rdim=3
-Set=GeneratorConIID Values=NoData rng=GeneratorOutofServiceEvent!B2 Rdim=2

@@ -6,11 +6,15 @@ import sys
 #set display column width
 pd.set_option('display.max_colwidth',1000)
 pd.set_option('display.max_rows',1000000)
-if sys.argv[1] == 'case.con':
-    filename = sys.argv[1]
+if sys.argv[1:]:
+    if sys.argv[1] == 'case.con':
+        filename = 'case.con'
+    else:
+        filename = sys.argv[1]
+        #print(filename)
 else:
-    filename = sys.argv[1]
-    print(filename)
+    filename = 'case.con'
+
 
 #data = pd.read_table(filename,sep='\r\t',header=None,skip_blank_lines=False)
 data = pd.read_table(filename,sep='\r\t',header=None,skip_blank_lines=False,engine='python')
@@ -53,17 +57,21 @@ for i in range(0,len(data)):
 BranchOutofServiceEvent["I"] = BranchOutofServiceEvent["I"].astype('int')
 BranchOutofServiceEvent["J"] = BranchOutofServiceEvent["J"].astype('int')
 BranchOutofServiceEvent.loc[:,"CKT"] = 'CKT' + BranchOutofServiceEvent.loc[:,"CKT"]
-GeneratorofServiceEvent.loc[:,"ID"] = 'GEN' + GeneratorofServiceEvent.loc[:,"ID"]
+#GeneratorofServiceEvent.loc[:,"ID"] = 'GEN' + GeneratorofServiceEvent.loc[:,"ID"]
+GeneratorofServiceEvent["ID"] = GeneratorofServiceEvent["ID"].astype('int')
 #GeneratorofServiceEvent.loc[:,"I"] = 'BUS' + GeneratorofServiceEvent.loc[:,"I"]
 GeneratorofServiceEvent["I"] = GeneratorofServiceEvent["I"].astype('int')
 
-file_path = r'./con2xls.xlsx'
-writer = pd.ExcelWriter(file_path)
+#file_path = r'./con2xls.xlsx'
+#writer = pd.ExcelWriter(file_path)
 df1 = pd.DataFrame(ContingencyLabel)
-df1.to_excel(writer,'ContingencyLabel')
+#df1.to_excel(writer,'ContingencyLabel')
+df1.to_csv('ContingencyLabel.csv')
 df2 = pd.DataFrame(BranchOutofServiceEvent)
-df2.to_excel(writer,'BranchOutofServiceEvent')
+#df2.to_excel(writer,'BranchOutofServiceEvent')
+df2.to_csv('BranchOutofServiceEvent.csv')
 df3 = pd.DataFrame(GeneratorofServiceEvent)
-df3.to_excel(writer,'GeneratorOutofServiceEvent')
-writer.save()
-writer.close()
+#df3.to_excel(writer,'GeneratorOutofServiceEvent')
+df3.to_csv('GeneratorOutofServiceEvent.csv')
+#writer.save()
+#writer.close()

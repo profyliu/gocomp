@@ -3,13 +3,18 @@ import csv
 import pandas as pd
 import sys
 
+
 #set display column width
 pd.set_option('display.max_colwidth',1000)
-if sys.argv[1] == 'case.inl':
-    filename = sys.argv[1]
+pd.set_option('display.max_rows',1000000)
+if sys.argv[1:]:
+    if sys.argv[1] == 'case.inl':
+        filename = 'case.inl'
+    else:
+        filename = sys.argv[1]
+        #print(filename)
 else:
-    filename = sys.argv[1]
-    print(filename)
+    filename = 'case.inl'
 
 #data = pd.read_table(filename,sep='\r\t',header=None,skip_blank_lines=False)
 data = pd.read_table(filename,sep='\r\t',header=None,skip_blank_lines=False,engine='python')
@@ -47,7 +52,7 @@ for i in range(0,len(data)):
             j = 'NA'
         listtemp.append(j.strip())
     strlist = listtemp
-
+    #print(strlist)
     if strlist[0].startswith("0"):
         #print('End of data')
         linnow = i
@@ -56,17 +61,19 @@ for i in range(0,len(data)):
     Unit_Inertia_and_Governor_Response_Data = Unit_Inertia_and_Governor_Response_Data.append(pd.Series((v for v in strlist) ,index=["I", "ID", "H", "PMAX", "PMIN", "R", "D"]), ignore_index=True)
 #Unit_Inertia_and_Governor_Response_Data.loc[:,"I"] = 'BUS' + Unit_Inertia_and_Governor_Response_Data.loc[:,"I"]
 Unit_Inertia_and_Governor_Response_Data["I"] = Unit_Inertia_and_Governor_Response_Data["I"].astype('int')
-Unit_Inertia_and_Governor_Response_Data.loc[:,"ID"] = 'GEN' + Unit_Inertia_and_Governor_Response_Data.loc[:,"ID"]
+#Unit_Inertia_and_Governor_Response_Data.loc[:,"ID"] = 'GEN' + Unit_Inertia_and_Governor_Response_Data.loc[:,"ID"]
+Unit_Inertia_and_Governor_Response_Data["ID"] = Unit_Inertia_and_Governor_Response_Data["ID"].astype('int')
 Unit_Inertia_and_Governor_Response_Data["H"] = Unit_Inertia_and_Governor_Response_Data["H"].astype('float64')
 Unit_Inertia_and_Governor_Response_Data["PMAX"] = Unit_Inertia_and_Governor_Response_Data["PMAX"].astype('float64')
 Unit_Inertia_and_Governor_Response_Data["PMIN"] = Unit_Inertia_and_Governor_Response_Data["PMIN"].astype('float64')
 Unit_Inertia_and_Governor_Response_Data["R"] = Unit_Inertia_and_Governor_Response_Data["R"].astype('float64')
 Unit_Inertia_and_Governor_Response_Data["D"] = Unit_Inertia_and_Governor_Response_Data["D"].astype('float64')
 
-file_path = r'./inl2xls.xlsx'
-writer = pd.ExcelWriter(file_path)
+#file_path = r'./inl2xls.xlsx'
+#writer = pd.ExcelWriter(file_path)
 df = pd.DataFrame(Unit_Inertia_and_Governor_Response_Data)
-df.to_excel(writer,'UIAGRData')
+#df.to_excel(writer,'UIAGRData')
+df.to_csv('UIAGRData.csv')
 
-writer.save()
-writer.close()
+#writer.save()
+#writer.close()

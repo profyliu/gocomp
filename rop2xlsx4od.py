@@ -6,11 +6,14 @@ import sys
 #set display column width
 pd.set_option('display.max_colwidth',2000)
 pd.set_option('display.max_rows',1000000)
-if sys.argv[1] == 'case.rop':
-    filename = sys.argv[1]
+if sys.argv[1:]:
+    if sys.argv[1] == 'case.rop':
+        filename = 'case.rop'
+    else:
+        filename = sys.argv[1]
+        #print(filename)
 else:
-    filename = sys.argv[1]
-    print(filename)
+    filename = 'case.rop'
 
 #data = pd.read_table(filename,sep='\r\t',header=None,skip_blank_lines=False)
 data = pd.read_table(filename,sep='\r\t',header=None,skip_blank_lines=False,engine='python')
@@ -102,9 +105,11 @@ for i in range(linnow+1,len(data)):
     Generator_Dispatch_Units_Data = Generator_Dispatch_Units_Data.append(pd.Series((v for v in strlist) ,index=["BUS", "GENID", "DISP", "DSPTBL"]), ignore_index=True)
 #Generator_Dispatch_Units_Data.loc[:,"BUS"] = 'BUS' + Generator_Dispatch_Units_Data.loc[:,"BUS"]
 Generator_Dispatch_Units_Data["BUS"] = Generator_Dispatch_Units_Data["BUS"].astype('int')
-Generator_Dispatch_Units_Data.loc[:,"GENID"] = 'GEN' + Generator_Dispatch_Units_Data.loc[:,"GENID"]
+#Generator_Dispatch_Units_Data.loc[:,"GENID"] = 'GEN' + Generator_Dispatch_Units_Data.loc[:,"GENID"]
+Generator_Dispatch_Units_Data["GENID"] = Generator_Dispatch_Units_Data["GENID"].astype('int')
 Generator_Dispatch_Units_Data.loc[:,"DSPTBL"] = 'TBL' + Generator_Dispatch_Units_Data.loc[:,"DSPTBL"]
 Generator_Dispatch_Units_Data["DISP"] = Generator_Dispatch_Units_Data["DISP"].astype('float64')
+#Generator_Dispatch_Units_Data = Generator_Dispatch_Units_Data.drop(columns=['DISP'])
 #Move "DSPTBL" to Third column
 DSPTBL = Generator_Dispatch_Units_Data.pop('DSPTBL')
 Generator_Dispatch_Units_Data.insert(2,'DSPTBL',DSPTBL)
@@ -314,6 +319,7 @@ Piecewise_Linear_Cost_Curve_Tables_Data = Piecewise_Linear_Cost_Curve_Tables_Dat
 #Create Gen-h sheet
 dftemp=Generator_Dispatch_Units_Data
 dftemp.columns = ["BUS", "GENID", "LTBL", "DISP"]
+
 #GenCostDatacombinedbyTbl = pd.concat([Generator_Dispatch_Units_Data, Piecewise_Linear_Cost_Curve_Tables_Data], axis=1, join_axes=[Generator_Dispatch_Units_Data.index])
 GenCostDatacombinedbyTbl = dftemp.merge(Piecewise_Linear_Cost_Curve_Tables_Data, on='LTBL', how='left')
 GenCostDatacombinedbyTbl = GenCostDatacombinedbyTbl.drop(columns=['DISP','LTBL'])
@@ -332,17 +338,22 @@ GenCostDatacombinedbyTbl = GenCostDatacombinedbyTbl.drop(columns=['DISP','LTBL']
 
 #Linear Constraint Dependencies data
 
-file_path = r'./rop2xls.xlsx'
-writer = pd.ExcelWriter(file_path)
+#file_path = r'./rop2xls.xlsx'
+#writer = pd.ExcelWriter(file_path)
 df6 = pd.DataFrame(Generator_Dispatch_Units_Data)
-df6.to_excel(writer,'GeneratorDispatchUnitsData')
+df6.to_csv('GeneratorDispatchUnitsData.csv')
+#df6.to_excel(writer,'GeneratorDispatchUnitsData')
 df7 = pd.DataFrame(Active_Power_Dispatch_Tables_Data)
-df7.to_excel(writer,'ActivePowerDispatchTables')
+df7.to_csv('ActivePowerDispatchTables.csv')
+#df7.to_excel(writer,'ActivePowerDispatchTables')
 df11 = pd.DataFrame(Piecewise_Linear_Cost_Curve_Tables_Data)
-df11.to_excel(writer,'PiecewiseLinearCostCurve')
+df11.to_csv('PiecewiseLinearCostCurve.csv')
+#df11.to_excel(writer,'PiecewiseLinearCostCurve')
 df12 = pd.DataFrame(LTBLNPAIRS)
-df12.to_excel(writer,'LTBLNPAIRS')
+df12.to_csv('LTBLNPAIRS.csv')
+#df12.to_excel(writer,'LTBLNPAIRS')
 df13 = pd.DataFrame(GenCostDatacombinedbyTbl)
-df13.to_excel(writer,'GenCostDatacombinedbyTbl')
-writer.save()
-writer.close()
+df13.to_csv('GenCostDatacombinedbyTbl.csv')
+#df13.to_excel(writer,'GenCostDatacombinedbyTbl')
+#writer.save()
+#writer.close()

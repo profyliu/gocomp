@@ -1,1 +1,0 @@
-par=UIAGRData rng=UIAGRData!B1 Rdim=2 Cdim=1 Dset=UIAGRinfo rng=UIAGRData!B1 Cdim=1 Dset=Bus rng=UIAGRData!B2 Rdim=1 Dset=Generator rng=UIAGRData!C2 Rdim=1

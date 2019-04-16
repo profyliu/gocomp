@@ -12,11 +12,14 @@ for arg in sys.argv:
 pd.set_option('display.max_colwidth',1000)
 pd.set_option('display.max_rows',1000000)
 
-if sys.argv[1] == 'case.raw':
-    filename = sys.argv[1]
+if sys.argv[1:]:
+    if sys.argv[1] == 'case.raw':
+        filename = 'case.raw'
+    else:
+        filename = sys.argv[1]
+        #print(filename)
 else:
-    filename = sys.argv[1]
-    print(filename)
+    filename = 'case.raw'
 
 #data = pd.read_table(filename,sep='\r\t',header=None,skip_blank_lines=False)
 data = pd.read_table(filename,sep='\r\t',header=None,skip_blank_lines=False,engine='python')
@@ -290,7 +293,8 @@ for i in range(linnow+1,len(data)):
     Generator_Data = Generator_Data.append(pd.Series((v for v in strlist) ,index=["I", "ID", "PG", "QG", "QT", "QB", "VS", "IREG", "MBASE", "ZR", "ZX", "RT", "XT", "GTAP", "STAT", "RMPCT", "PT", "PB", "O1", "F1", "O2", "F2", "O3", "F3", "O4", "F4", "WMOD", "WPF"]), ignore_index=True)
 #Generator_Data.loc[:,"I"] = 'BUS' + Generator_Data.loc[:,"I"]
 Generator_Data["I"] = Generator_Data["I"].astype('int')
-Generator_Data.loc[:,"ID"] = 'GEN' + Generator_Data.loc[:,"ID"]
+#Generator_Data.loc[:,"ID"] = 'GEN' + Generator_Data.loc[:,"ID"]
+Generator_Data["ID"] = Generator_Data["ID"].astype('int')
 Generator_Data["PG"] = Generator_Data["PG"].astype('float64')
 Generator_Data["QG"] = Generator_Data["QG"].astype('float64')
 Generator_Data["QT"] = Generator_Data["QT"].astype('float64')
@@ -623,27 +627,37 @@ print(data.iloc[5])
 
 
 
-file_path = r'./raw2xls.xlsx'
-writer = pd.ExcelWriter(file_path)
+#file_path = r'./raw2xls.xlsx'
+#writer = pd.ExcelWriter(file_path)
 df1 = pd.DataFrame(Case_Identification_Data)
-df1.to_excel(writer,'CID')
+df1.to_csv('CID.csv')
+#df1.to_excel(writer,'CID')
 df2 = pd.DataFrame(Bus_Data)
-df2.to_excel(writer,'BusData')
+df2.to_csv('BusData.csv')
+#df2.to_excel(writer,'BusData')
 df3 = pd.DataFrame(Load_Data)
-df3.to_excel(writer,'LoadData')
+df3.to_csv('LoadData.csv')
+#df3.to_excel(writer,'LoadData')
 df4 = pd.DataFrame(Fixed_Bus_Shunt_Data)
-df4.to_excel(writer,'FixedBusShuntData')
+df4.to_csv('FixedBusShuntData.csv')
+#df4.to_excel(writer,'FixedBusShuntData')
 df5 = pd.DataFrame(Generator_Data)
-df5.to_excel(writer,'GeneratorData')
+df5.to_csv('GeneratorData.csv')
+#df5.to_excel(writer,'GeneratorData')
 df6 = pd.DataFrame(NonTransformer_Branch_Data)
-df6.to_excel(writer,'NonTransformerBranchData')
+df6.to_csv('NonTransformerBranchData.csv')
+#df6.to_excel(writer,'NonTransformerBranchData')
 df7 = pd.DataFrame(Transformer_Data)
-df7.to_excel(writer,'TransformerData')
+df7.to_csv('TransformerData.csv')
+#df7.to_excel(writer,'TransformerData')
 df18 = pd.DataFrame(Switched_Shunt_Data)
-df18.to_excel(writer,'SwitchedShuntData')
+df18.to_csv('SwitchedShuntData.csv')
+#df18.to_excel(writer,'SwitchedShuntData')
 df19 = pd.DataFrame(Areas)
-df19.to_excel(writer,'Areas')
+df19.to_csv('Areas.csv')
+#df19.to_excel(writer,'Areas')
 df20 = pd.DataFrame(Area_Data)
-df20.to_excel(writer,'AreaData')
-writer.save()
-writer.close()
+df20.to_csv('AreaData.csv')
+#df20.to_excel(writer,'AreaData')
+#writer.save()
+#writer.close()

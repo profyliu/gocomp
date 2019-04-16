@@ -12,34 +12,16 @@ $if not set timelimit $set timelimit 2700
 $if not set ScoringMethod $set ScoringMethod 0
 $if not set NetworkModel $set NetworkModel model_name
 
-$if not set havedata $set havedata no
+$if not set havedata $set havedata yes
 $if not set firstNcont $set firstNcont 10000
 $if not set ncores $set ncores 24
 $if not set method $set method minlp
 $if not set have_sol1_gdx $set have_sol1_gdx yes
 
+
 option threads=%ncores%;
-
-
-$ifthen %havedata% == no
-*Generate data files
-$call =python raw2xlsx4od.py %raw%
-$call =python rop2xlsx4od.py %rop%
-$call =python inl2xlsx4od.py %inl%
-$call =python con2xlsx4od.py %con%
-
-$call gdxxrw raw2xls.xlsx @extract.txt
-$call gdxxrw rop2xls.xlsx @extractrop.txt
-$call gdxxrw inl2xls.xlsx @extractinl.txt
-$call gdxxrw con2xls.xlsx @extractcon.txt
-$else
-
-$endif
-
-$if not exist solution1.gdx $set have_sol1_gdx no
-$if not exist solution1.gdx $call =python sol12xlsx.py
-$if not exist solution1.gdx $call gdxxrw txt2xls.xlsx @extracttxt.txt
-
+option nlp=conopt4, mip=cplex, rminlp=conopt4, minlp=dicopt;
+option limrow=0,limcol=0;
 
 set     UELORDER    /1*999997/;
 
@@ -49,13 +31,13 @@ sets
 *    line set of lines
 
     FixedBusShunt set of FixedBusShunt
-    FixedBusShuntInfo
-    businfo
-    loadinfo
-    Generatorinfo
-    NonTransformerBranchinfo
-    Transformerinfo
-    SwitchedShuntinfo
+    FixedBusShuntInfo /STATUS,    GL,    BL /
+    businfo /BASKV,    IDE,    AREA,    ZONE,    OWNER,    VM,    VA,    NVHI,    NVLO,    EVHI,    EVLO/
+    loadinfo /STATUS,    AREA,    ZONE,    PL,    QL,    IP,    IQ,    YP,    YQ,    OWNER,    SCALE,    INTRPT/
+    Generatorinfo /PG,    QG,    QT,    QB,    VS,    IREG,    MBASE,    ZR,    ZX,    RT,    XT,    GTAP,    STAT,    RMPCT,    PT,    PB,    O1,    F1,    O2,    F2,    O3,    F3,    O4,    F4,    WMOD,    WPF/
+    NonTransformerBranchinfo /R,    X,    B,    RATEA,    RATEB,    RATEC,    GI,    BI,    GJ,    BJ,    ST,    MET,    LEN,    O1,    F1,    O2,    F2,    O3,    F3,    O4,    F4/
+    Transformerinfo /CW    ,CZ    ,CM    ,MAG1    ,MAG2    ,NMETR    ,STAT    ,O1    ,F1    ,O2    ,F2    ,O3    ,F3    ,O4    ,F4    ,R12    ,X12    ,SBASE12    ,WINDV1    ,NOMV1    ,ANG1    ,RATA1    ,RATB1    ,RATC1    ,COD1    ,CONT1    ,RMA1    ,RMI1    ,VMA1    ,VMI1    ,NTP1    ,TAB1    ,CR1    ,CX1    ,CNXA1    ,WINDV2    ,NOMV2/
+    SwitchedShuntinfo /MODSW,    ADJM,    STAT,    VSWHI,    VSWLO,    SWREM,    RMPCT,    BINIT,    N1,    B1,    N2,    B2,    N3,    B3,    N4,    B4,    N5,    B5,    N6,    B6,    N7,    B7,    N8,    B8/
 
 
     transformer set of transformers
@@ -74,7 +56,6 @@ sets
 
 * Table 5
 alias(area,a);
-*alias(line,e);
 alias(transformer,f);
 alias(generatorid,g);
 alias(csample,h);
@@ -92,24 +73,10 @@ sets
 
 * Table 6
 sets
-*    ai(a,i) area of bus i
     ak(i,a,k) contigent area of contingency k
     failArea(a,k)
     failBus(i,k)
-$ontext
-    actbe(e) lines active in the base case
-    eid(e,i) line e with destination bus i
-    eio(e,i) line e with origin bus i
-    actlinek(e,k) lines active in contigency k
-    eikd(e,i,k) line e active in contingency k with destination bus i
-    eiko(e,i,k) line e active in contingency k with destination bus i
-    actbf(f) transformers active in the base case
-    fid(f,i) transformer f with destination bus i
-    fio(f,i) transformer f with origin bus i
-    actkf(f,k) transformers active in contingency k
-    fikd(f,i,k) transformer f active in contingency k with destination bus i
-    fiko(f,i,k) transformer f active in contingency k with origin bus i
-$offtext
+
     actline(i,i,ckt) lines active in the base case
     actxfmr(i,i,ckt) transformers active in the base case
     actlinek(i,i,ckt,k) lines active in contigency k
@@ -130,6 +97,53 @@ $offtext
 ;
 
 
+$ifthen %havedata% == no
+*Generate data files
+$call =pip install pandas
+$call =python raw2xlsx4od.py %raw%
+$call =python rop2xlsx4od.py %rop%
+$call =python inl2xlsx4od.py %inl%
+$call =python con2xlsx4od.py %con%
+
+
+$call csv2gdx CID.csv id=CID values=2..lastCol useHeader=y
+$call csv2gdx BusData.csv id=BusData index=2 values=3..lastCol useHeader=y
+$call csv2gdx LoadData.csv id=LoadData index=2..3 values=4..lastCol useHeader=y
+$call csv2gdx FixedBusShuntData.csv id=FixedBusShuntData index=2..3 values=4..lastCol useHeader=y
+$call csv2gdx GeneratorData.csv id=GeneratorData index=2..3 values=4..lastCol useHeader=y
+
+$call csv2gdx GeneratorData.csv id=Gen index=2..3 useHeader=y output=gen.gdx
+
+$call csv2gdx NonTransformerBranchData.csv id=NonTransformerBranchData index=2..4 values=5..lastCol useHeader=y
+
+$call csv2gdx NonTransformerBranchData.csv id=line index=2..4 useHeader=y output=line.gdx
+
+$call csv2gdx TransformerData.csv id=TransformerData index=2..4 values=5..lastCol useHeader=y
+
+$call csv2gdx TransformerData.csv id=xfmr index=2..4 useHeader=y output=xfmr.gdx
+
+$call csv2gdx SwitchedShuntData.csv id=SwitchedShuntData index=2 values=3..lastCol useHeader=y
+$call csv2gdx AreaData.csv id=area index=2 useHeader=y
+$call csv2gdx Areas.csv id=areas index=2..3 useHeader=y
+$call csv2gdx GeneratorDispatchUnitsData.csv id=GeneratorDispatchUnitsData index=2..4 useHeader=y
+$call csv2gdx ActivePowerDispatchTables.csv id=ActivePowerDispatchTablesData index=2..3 values=4..lastCol useHeader=y
+$call csv2gdx PiecewiseLinearCostCurve.csv id=PiecewiseLinearCostCurveData index=2..3 values=4..lastCol useHeader=y
+$call csv2gdx LTBLNPAIRS.csv id=LTBLNPAIRSData index=2 values=3..lastCol useHeader=y
+$call csv2gdx GenCostDatacombinedbyTbl.csv id=GenCostDatacombinedbyTbl index=2..4 values=5..lastCol useHeader=y
+
+$call csv2gdx GeneratorDispatchUnitsData.csv id=GenTbl index=2..4 useHeader=y output=GenTbl.gdx
+$call csv2gdx ActivePowerDispatchTables.csv id=TblTbl index=2..3 useHeader=y output=TblTbl.gdx
+$call csv2gdx PiecewiseLinearCostCurve.csv id=Tblh index=2..3 useHeader=y output=Tblh.gdx
+
+
+$call csv2gdx UIAGRData.csv id=UIAGRData index=2..3 values=3..lastCol useHeader=y
+$call csv2gdx ContingencyLabel.csv id=ContingencyLabel index=2 useHeader=y
+$call csv2gdx BranchOutofServiceEvent.csv id=BranchOutofServiceEvent index=2..5 useHeader=y
+$call csv2gdx GeneratorOutofServiceEvent.csv id=GeneratorOutofServiceEvent index=2..4 useHeader=y
+$endif
+
+
+
 *Load Data from RAW
 parameter CID(*)
          BusData(bus,businfo)
@@ -144,16 +158,66 @@ Sets
         Areas(bus,area)
 ;
 
-$gdxin raw2xls.gdx
-$load CID, bus, businfo,ckt=NonTransformerBranchCKT, load, loadinfo, BusData, LoadData, FixedBusShuntInfo, FixedBusShunt, Generatorinfo, FixedBusShuntData, Generatorid=Generator, Gen, GeneratorData, line, NonTransformerBranchinfo, NonTransformerBranchData, xfmr, Transformerinfo, TransformerData, SwitchedShuntinfo, SwitchedShuntData, area, areas
+
+$gdxin CID.gdx
+$load CID
 $gdxin
 
-*display CID, bus, ckt, load, BusData, LoadData, FixedBusShuntInfo, FixedBusShunt, FixedBusShuntData, GeneratorData, line, NonTransformerBranchData, xfmr, TransformerData, SwitchedShuntData, Gen;
+$gdxin BusData.gdx
+$load Bus = Dim1
+$load BusData
+$gdxin
+
+$gdxin LoadData.gdx
+$load load = Dim2
+$load LoadData
+$gdxin
+
+$gdxin FixedBusShuntData.gdx
+$load FixedBusShunt = Dim2
+$load FixedBusShuntData
+$gdxin
+
+$gdxin GeneratorData.gdx
+$load Generatorid = Dim2
+$load GeneratorData
+$gdxin
+
+$gdxin gen.gdx
+$load gen
+$gdxin
+
+$gdxin NonTransformerBranchData.gdx
+$load ckt = Dim3
+$load NonTransformerBranchData
+$gdxin
+
+$gdxin line.gdx
+$load line
+$gdxin
+
+$gdxin TransformerData.gdx
+$load TransformerData
+$gdxin
+
+$gdxin xfmr.gdx
+$load xfmr
+$gdxin
+
+$gdxin SwitchedShuntData.gdx
+$load SwitchedShuntData
+$gdxin
+
+$gdxin Areas.gdx
+$load area = Dim2
+$load Areas
+$gdxin
+
+
 
 *Load Data from ROP
 sets
     GeneratorDispatchUnitsTbl
-    GeneratorDispatchUnitsinfo
     ActivePowerDispatchTablesTbl
     ActivePowerDispatchTablesinfo
     PiecewiseLinearCostCurveTbl
@@ -166,21 +230,57 @@ sets
     Tblh(tbl,h)
 ;
 
+Set
+    GeneratorDispatchUnitsData(Bus,Generatorid,Tbl)
+
+    GenTbl(i,g,tbl)
+    Tbltbl(tbl,tbl)
+    Tblh(tbl,h)
+;
 
 parameter
-        GeneratorDispatchUnitsData(Bus,Generatorid,Tbl,GeneratorDispatchUnitsinfo)
         ActivePowerDispatchTablesData(Tbl,Tbl,ActivePowerDispatchTablesinfo)
         PiecewiseLinearCostCurveData(Tbl,csample,PiecewiseLinearCostCurveinfo)
-        LTBLNPAIRSData(Tbl,LTBLNPAIRSinfo)
+        LTBLNPAIRSData(Tbl)
 
         GenCostDatacombinedbyTbl(i,g,h,*)
 ;
 
-$gdxin rop2xls.gdx
-$load tbl,GeneratorDispatchUnitsinfo,GeneratorDispatchUnitsData,ActivePowerDispatchTablesinfo,ActivePowerDispatchTablesData,csample=PiecewiseLinearCostCurveNoP,PiecewiseLinearCostCurveinfo,PiecewiseLinearCostCurveData, LTBLNPAIRSinfo,LTBLNPAIRSData,GenTbl,Tbltbl,Tblh, GenCostDatacombinedbyTbl
+$gdxin GeneratorDispatchUnitsData.gdx
+$load Tbl = Dim3
+$load GeneratorDispatchUnitsData
 $gdxin
 
-*display GeneratorDispatchUnitsinfo,GeneratorDispatchUnitsData, ActivePowerDispatchTablesinfo,ActivePowerDispatchTablesData,csample,PiecewiseLinearCostCurveinfo,PiecewiseLinearCostCurveData, LTBLNPAIRSinfo,LTBLNPAIRSData
+$gdxin ActivePowerDispatchTables.gdx
+$load ActivePowerDispatchTablesinfo = Dim3
+$load ActivePowerDispatchTablesData
+$gdxin
+
+$gdxin PiecewiseLinearCostCurve.gdx
+$load csample = Dim2
+$load PiecewiseLinearCostCurveinfo = Dim3
+$load PiecewiseLinearCostCurveData
+$gdxin
+
+$gdxin LTBLNPAIRS.gdx
+$load LTBLNPAIRSData
+$gdxin
+
+$gdxin GenCostDatacombinedbyTbl.gdx
+$load GenCostDatacombinedbyTbl
+$gdxin
+
+$gdxin GenTbl.gdx
+$load GenTbl
+$gdxin
+
+$gdxin TblTbl.gdx
+$load TblTbl
+$gdxin
+
+$gdxin Tblh.gdx
+$load Tblh
+$gdxin
 
 
 *Load Data from INL
@@ -190,27 +290,30 @@ sets
 parameter
         UIAGRData(Bus,g,UIAGRinfo)
 ;
-$gdxin inl2xls.gdx
-$load UIAGRinfo, UIAGRData
+$gdxin UIAGRData.gdx
+$load UIAGRinfo = Dim3
+$load UIAGRData
 $gdxin
-
 
 *Load Data from CON
 sets
         ContingencyLabel
         BranchOutofServiceEvent(Bus,Bus,ckt,contingency)
         GeneratorOutofServiceEvent(Bus,g,contingency)
-        BranchConIJCKT
-        GeneratorConIID
 ;
 
-$gdxin con2xls.gdx
-$load contingency=ContingencyLabel, BranchOutofServiceEvent, GeneratorOutofServiceEvent
-*$load BranchOutofServiceEvent, GeneratorOutofServiceEvent
-$load BranchConIJCKT, GeneratorConIID
+$gdxin ContingencyLabel.gdx
+$load contingency=ContingencyLabel
 $gdxin
 
-*display k, BranchConIJCKT, GeneratorConIID, BranchOutofServiceEvent, GeneratorOutofServiceEvent;
+$gdxin BranchOutofServiceEvent.gdx
+$load BranchOutofServiceEvent
+$gdxin
+
+$gdxin GeneratorOutofServiceEvent.gdx
+$load GeneratorOutofServiceEvent
+$gdxin
+
 
 *Read Generator Data
 *if STAT = 1
@@ -1379,8 +1482,6 @@ lin_Q_model.solprint = no;
 lin_P_model.solvelink = 5;
 lin_Q_model.solvelink = 5;
 
-lin_P_model.reslim=20;
-lin_Q_model.reslim=20;
 
 parameter
     starttime
@@ -1436,6 +1537,13 @@ sol_v_qg(i,g) = GeneratorSol(i,g,'q');
 $endif
 
 
+* Initialize all contingencies solutions to the base case solution, in case the program is interrupted due to time limit
+sol_v_vik(i,k) = sol_v_vi(i);
+sol_v_thetaik(i,k) = sol_v_thetai(i);
+sol_v_bikCS(i,k) = sol_v_bics(i);
+sol_v_pgk(i,g,k) = sol_v_pg(i,g);
+sol_v_qgk(i,g,k) = sol_v_qg(i,g);
+sol_v_deltak(k) = 0;
 
 p_pg(i,g) = sol_v_pg(i,g)/p_s_tilde;
 p_vi(i) = sol_v_vi(i);
@@ -1564,7 +1672,26 @@ display sol_fix_ck;
 
 execute_unload 'solution2.gdx' sol_v_vik, sol_v_thetaik, sol_v_bikCS, sol_v_pgk, sol_v_qgk, sol_v_deltak;
 
-
+file soltext2 /'solution2.txt'/;
+put soltext2;
+loop(k,
+    put '--contigency' /;
+    put 'lable' /;
+    put k.tl /;
+    put '--bus section' /;
+    put 'i, v, theta, b' /;
+    loop(i,
+        put  i.tl  ',' sol_v_vik(i,k):25:15 ',' sol_v_thetaik(i,k):25:15 ',' sol_v_bikCS(i,k):25:15 /;
+    );
+    put '--generator section' /;
+    put 'i, uid, p, q' /;
+    loop((i,g)$gen(i,g),
+        put  i.tl ','  g.tl  ',' sol_v_pgk(i,g,k):25:15 ',' sol_v_qgk(i,g,k):25:15 /;
+    );
+    put '--delta section' /;
+    put 'delta' /;
+    put sol_v_deltak(k):25:15 /;
+);
 
 
 
