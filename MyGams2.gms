@@ -106,40 +106,40 @@ $call =python inl2xlsx4od.py %inl%
 $call =python con2xlsx4od.py %con%
 
 
-$call csv2gdx CID.csv id=CID values=2..lastCol useHeader=y
-$call csv2gdx BusData.csv id=BusData index=2 values=3..lastCol useHeader=y
-$call csv2gdx LoadData.csv id=LoadData index=2..3 values=4..lastCol useHeader=y
-$call csv2gdx FixedBusShuntData.csv id=FixedBusShuntData index=2..3 values=4..lastCol useHeader=y
-$call csv2gdx GeneratorData.csv id=GeneratorData index=2..3 values=4..lastCol useHeader=y
+$call =csv2gdx CID.csv id=CID values=2..lastCol useHeader=y
+$call =csv2gdx BusData.csv id=BusData index=2 values=3..lastCol useHeader=y
+$call =csv2gdx LoadData.csv id=LoadData index=2..3 values=4..lastCol useHeader=y
+$call =csv2gdx FixedBusShuntData.csv id=FixedBusShuntData index=2..3 values=4..lastCol useHeader=y
+$call =csv2gdx GeneratorData.csv id=GeneratorData index=2..3 values=4..lastCol useHeader=y
 
-$call csv2gdx GeneratorData.csv id=Gen index=2..3 useHeader=y output=gen.gdx
+$call =csv2gdx GeneratorData.csv id=Gen index=2..3 useHeader=y output=gen.gdx
 
-$call csv2gdx NonTransformerBranchData.csv id=NonTransformerBranchData index=2..4 values=5..lastCol useHeader=y
+$call =csv2gdx NonTransformerBranchData.csv id=NonTransformerBranchData index=2..4 values=5..lastCol useHeader=y
 
-$call csv2gdx NonTransformerBranchData.csv id=line index=2..4 useHeader=y output=line.gdx
+$call =csv2gdx NonTransformerBranchData.csv id=line index=2..4 useHeader=y output=line.gdx
 
-$call csv2gdx TransformerData.csv id=TransformerData index=2..4 values=5..lastCol useHeader=y
+$call =csv2gdx TransformerData.csv id=TransformerData index=2..4 values=5..lastCol useHeader=y
 
-$call csv2gdx TransformerData.csv id=xfmr index=2..4 useHeader=y output=xfmr.gdx
+$call =csv2gdx TransformerData.csv id=xfmr index=2..4 useHeader=y output=xfmr.gdx
 
-$call csv2gdx SwitchedShuntData.csv id=SwitchedShuntData index=2 values=3..lastCol useHeader=y
-$call csv2gdx AreaData.csv id=area index=2 useHeader=y
-$call csv2gdx Areas.csv id=areas index=2..3 useHeader=y
-$call csv2gdx GeneratorDispatchUnitsData.csv id=GeneratorDispatchUnitsData index=2..4 useHeader=y
-$call csv2gdx ActivePowerDispatchTables.csv id=ActivePowerDispatchTablesData index=2..3 values=4..lastCol useHeader=y
-$call csv2gdx PiecewiseLinearCostCurve.csv id=PiecewiseLinearCostCurveData index=2..3 values=4..lastCol useHeader=y
-$call csv2gdx LTBLNPAIRS.csv id=LTBLNPAIRSData index=2 values=3..lastCol useHeader=y
-$call csv2gdx GenCostDatacombinedbyTbl.csv id=GenCostDatacombinedbyTbl index=2..4 values=5..lastCol useHeader=y
+$call =csv2gdx SwitchedShuntData.csv id=SwitchedShuntData index=2 values=3..lastCol useHeader=y
+$call =csv2gdx AreaData.csv id=area index=2 useHeader=y
+$call =csv2gdx Areas.csv id=areas index=2..3 useHeader=y
+$call =csv2gdx GeneratorDispatchUnitsData.csv id=GeneratorDispatchUnitsData index=2..4 useHeader=y
+$call =csv2gdx ActivePowerDispatchTables.csv id=ActivePowerDispatchTablesData index=2..3 values=4..lastCol useHeader=y
+$call =csv2gdx PiecewiseLinearCostCurve.csv id=PiecewiseLinearCostCurveData index=2..3 values=4..lastCol useHeader=y
+$call =csv2gdx LTBLNPAIRS.csv id=LTBLNPAIRSData index=2 values=3..lastCol useHeader=y
+$call =csv2gdx GenCostDatacombinedbyTbl.csv id=GenCostDatacombinedbyTbl index=2..4 values=5..lastCol useHeader=y
 
-$call csv2gdx GeneratorDispatchUnitsData.csv id=GenTbl index=2..4 useHeader=y output=GenTbl.gdx
-$call csv2gdx ActivePowerDispatchTables.csv id=TblTbl index=2..3 useHeader=y output=TblTbl.gdx
-$call csv2gdx PiecewiseLinearCostCurve.csv id=Tblh index=2..3 useHeader=y output=Tblh.gdx
+$call =csv2gdx GeneratorDispatchUnitsData.csv id=GenTbl index=2..4 useHeader=y output=GenTbl.gdx
+$call =csv2gdx ActivePowerDispatchTables.csv id=TblTbl index=2..3 useHeader=y output=TblTbl.gdx
+$call =csv2gdx PiecewiseLinearCostCurve.csv id=Tblh index=2..3 useHeader=y output=Tblh.gdx
 
 
-$call csv2gdx UIAGRData.csv id=UIAGRData index=2..3 values=3..lastCol useHeader=y
-$call csv2gdx ContingencyLabel.csv id=ContingencyLabel index=2 useHeader=y
-$call csv2gdx BranchOutofServiceEvent.csv id=BranchOutofServiceEvent index=2..5 useHeader=y
-$call csv2gdx GeneratorOutofServiceEvent.csv id=GeneratorOutofServiceEvent index=2..4 useHeader=y
+$call =csv2gdx UIAGRData.csv id=UIAGRData index=2..3 values=3..lastCol useHeader=y
+$call =csv2gdx ContingencyLabel.csv id=ContingencyLabel index=2 useHeader=y
+$call =csv2gdx BranchOutofServiceEvent.csv id=BranchOutofServiceEvent index=2..5 useHeader=y
+$call =csv2gdx GeneratorOutofServiceEvent.csv id=GeneratorOutofServiceEvent index=2..4 useHeader=y
 $endif
 
 
