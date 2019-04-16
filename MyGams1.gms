@@ -8,7 +8,7 @@ $if not set con $set con case.con
 $if not set inl $set inl case.inl
 $if not set raw $set raw case.raw
 $if not set rop $set rop case.rop
-$if not set timelimit $set timelimit 2700
+$if not set timelimit $set timelimit 600
 $if not set ScoringMethod $set ScoringMethod 0
 $if not set NetworkModel $set NetworkModel model_name
 
