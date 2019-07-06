@@ -25,6 +25,7 @@ option limrow=0,limcol=0;
 
 set     UELORDER    /1*999997/;
 
+
 * Table 4
 sets
     area set of areas
@@ -1692,7 +1693,3 @@ loop(k,
     put 'delta' /;
     put sol_v_deltak(k):25:15 /;
 );
-
-
-
-
