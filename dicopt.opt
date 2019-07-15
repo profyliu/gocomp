@@ -3,4 +3,5 @@ mipsolver=cplex
 nlpoptfile=1
 nlpsolver=conopt
 fp_sollimit=10
+fp_integercuts=0
 optcr=0.4
