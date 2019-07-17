@@ -1859,6 +1859,7 @@ activek(k) = yes$(selected_cont_priority(k) > 0 and selected_cont_priority(k) <=
 solve ext_single_cont minimize v_c using rminlp;
 $else
 activek(k) = yes$(sol_fix_ck(k) >= smax(k0$(selected_cont_priority(k0) > 0 and selected_cont_priority(k0) <= how_many_cont_looked), sol_fix_ck(k0)) );
+ext_single_cont.optfile=2;
 solve ext_single_cont minimize v_c using minlp;
 $endif
 
