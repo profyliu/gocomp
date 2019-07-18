@@ -95,6 +95,9 @@ sets
 
     ia(i,a) buses in area a
 
+    actset_pgk(i,g,k)
+    actset_vik(i,k)
+
 ;
 
 
@@ -1556,8 +1559,6 @@ parameter
 sets
     BusSolInfo
     GenSolInfo
-    actset_pgk(i,g,k)
-    actset_vik(i,k)
 ;
 parameters
     BusSol(Bus,BusSolInfo)
@@ -1672,45 +1673,45 @@ loop(k0$(ord(k0) <= %firstNcont%),
 *    v_deltak.lo(k0) = 0;
 
 
-if ( %method% == minlp,
+$ifthen %method% == minlp
     v_pgk.lo(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_pg_l(i,g);
     v_pgk.up(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_pg_u(i,g);
     v_qgk.lo(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_qg_l(i,g);
     v_qgk.up(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_qg_u(i,g);
     solve minlp_single_cont minimize fix_ck using minlp;
-elseif ( %method% == nlp),
+$elseif  %method% == nlp
     isfeasible = 0;
     actset_pgk(i,g,k) = yes;
     actset_vik(i,k) = yes;
-    while(isfeasible == 0,
+    while((isfeasible < 1),
         isfeasible = 1;
         solve nlp_single_cont minimize fix_ck using nlp;
-        loop((i,g),
-            if(v_pgk.l(i,g,k)$(actgenk(i,g,k) and activek(k)) > p_pg_u,
-                v_pgk.fx(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_pg_u;
-                actset_pgk(i,g,k)$(actgenk(i,g,k) and activek(k)) = no;
+        loop((i,g,k)$(actgenk(i,g,k) and activek(k)),
+            if(v_pgk.l(i,g,k) > p_pg_u(i,g),
+                v_pgk.fx(i,g,k) = p_pg_u(i,g);
+                actset_pgk(i,g,k) = no;
                 isfeasible = 0;
                 );
-            if(v_pgk.l(i,g,k)$(actgenk(i,g,k) and activek(k)) < p_pg_l,
-                v_pgk.fx(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_pg_l;
-                actset_pgk(i,g,k)$(actgenk(i,g,k) and activek(k)) = no;
+            if(v_pgk.l(i,g,k) < p_pg_l(i,g),
+                v_pgk.fx(i,g,k) = p_pg_l(i,g);
+                actset_pgk(i,g,k) = no;
                 isfeasible = 0;
                 );
             );
-        loop((i,g),
-            if(v_qgk(i,g,k)$(actgenk(i,g,k) and activek(k) > p_qg_u,
-                v_qgk.fx(i,g,k)$(actgenk(i,g,k) and activek(k) = p_qg_u;
-                actset_vik(i,k)$(actgenk(i,g,k) and activek(k) = no;
+        loop((i,g,k)$(actgenk(i,g,k) and activek(k)),
+            if(v_qgk.l(i,g,k) > p_qg_u(i,g),
+                v_qgk.fx(i,g,k) = p_qg_u(i,g);
+                actset_vik(i,k) = no;
                 isfeasible = 0;
                 );
-            if(v_qgk(i,g,k)$(actgenk(i,g,k) and activek(k) < p_qg_l,
-                v_qgk.fx(i,g,k)$(actgenk(i,g,k) and activek(k) = p_qg_l;
-                actset_vik(i,k)$(actgenk(i,g,k) and activek(k) = no;
+            if(v_qgk.l(i,g,k) < p_qg_l(i,g),
+                v_qgk.fx(i,g,k) = p_qg_l(i,g);
+                actset_vik(i,k) = no;
                 isfeasible = 0;
                 );
             );
         );
-else
+$else
 * Initialize
     v_xgkPp.l(i,g,k0)$actgenk(i,g,k0) = 0;
     v_xgkPn.l(i,g,k0)$actgenk(i,g,k0) = 0;
@@ -1732,7 +1733,7 @@ else
     p_xgkQp(i,g,k0) = v_xgkQp.l(i,g,k0);
     p_xgkQn(i,g,k0) = v_xgkQn.l(i,g,k0);
     solve fix_single_cont minimize fix_ck using nlp;
-    );
+$endif
 
     sol_v_vik(i,k0) = v_vik.l(i,k0);
     sol_v_thetaik(i,k0) = (180/pi)* v_thetaik.l(i,k0);
