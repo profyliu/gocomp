@@ -15,7 +15,7 @@ $if not set NetworkModel $set NetworkModel model_name
 $if not set havedata $set havedata yes
 $if not set firstNcont $set firstNcont 10000
 $if not set ncores $set ncores 24
-$if not set method $set method minlp
+$if not set method $set method nlp
 $if not set have_sol1_gdx $set have_sol1_gdx yes
 
 
@@ -840,6 +840,8 @@ equations
 *Generator Real Power Contingency Response
     eq_84(i,g,k)
 
+    eq_85_1(i,g,k)
+
 *Mixed Integer Programming Formulation
 *    eq_87(k,i,g)
 *    eq_88(k,i,g)
@@ -849,6 +851,7 @@ equations
     eq_92(i,g,k)
 *Generator Reactive Power Contingency Response
 
+    eq_93_1(i,g,k)
     eq_98(i,g,k)
     eq_99(i,g,k)
     eq_100(i,g,k)
@@ -1406,6 +1409,11 @@ model fix_single_cont /
 
 /;
 
+eq_85_1(i,g,k)$(gkp(i,g,k) and activek(k) and actset_pgk(i,g,k))..
+    v_pgk(i,g,k) =e= p_pg_l(i,g) + p_alphag(i,g)*v_deltak(k);
+
+eq_93_1(i,g,k)$(gkp(i,g,k) and activek(k) and actset_vik(i,k))..
+    v_vik(i,k) =e= p_vi(i);
 
 bineq_89(i,g,k)$(gkp(i,g,k) and activek(k))..
     p_pg_u(i,g) - v_pgk(i,g,k) =l= p_Mp*v_xgkPp(i,g,k);
@@ -1466,6 +1474,35 @@ model minlp_single_cont /
     fix_obj
 /;
 
+model nlp_single_cont /
+    eq_9
+    eq_11
+    eq_13
+    eq_15
+    eq_17
+    eq_19
+
+    eq_64
+    eq_65
+    eq_66
+    eq_67
+    eq_68
+    eq_69
+    eq_70
+    eq_71
+    eq_72
+    eq_75
+    eq_78
+    eq_80
+    eq_81
+    eq_83
+    eq_84
+    eq_85_1
+    eq_93_1
+
+    fix_obj
+/;
+
 fix_single_cont.solprint = no;
 fix_single_cont.optfile=1;
 fix_single_cont.solvelink=5;
@@ -1496,7 +1533,9 @@ parameter
     cont_cputime_P(k)
     cont_cputime_Q(k)
     cont_c_Total(k,*)
+    isfeasible
 ;
+
 
 parameter
     sol_v_vi(i)
@@ -1517,6 +1556,8 @@ parameter
 sets
     BusSolInfo
     GenSolInfo
+    actset_pgk(i,g,k)
+    actset_vik(i,k)
 ;
 parameters
     BusSol(Bus,BusSolInfo)
@@ -1603,13 +1644,11 @@ loop(k0$(ord(k0) <= %firstNcont%),
     v_vik.lo(i,k)$activek(k) = p_viK_l(i);
     v_vik.up(i,k)$activek(k) = p_viK_u(i);
 
-    v_pgk.lo(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_pg_l(i,g);
-    v_pgk.up(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_pg_u(i,g);
+
 
     v_pgk.fx(i,g,k)$((not actgenk(i,g,k)) and activek(k)) = 0;
 
-    v_qgk.lo(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_qg_l(i,g);
-    v_qgk.up(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_qg_u(i,g);
+
 
     v_qgk.fx(i,g,k)$((not actgenk(i,g,k)) and activek(k)) = 0;
 
@@ -1633,9 +1672,45 @@ loop(k0$(ord(k0) <= %firstNcont%),
 *    v_deltak.lo(k0) = 0;
 
 
-$ifthen %method% == minlp
+if ( %method% == minlp,
+    v_pgk.lo(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_pg_l(i,g);
+    v_pgk.up(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_pg_u(i,g);
+    v_qgk.lo(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_qg_l(i,g);
+    v_qgk.up(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_qg_u(i,g);
     solve minlp_single_cont minimize fix_ck using minlp;
-$else
+elseif ( %method% == nlp),
+    isfeasible = 0;
+    actset_pgk(i,g,k) = yes;
+    actset_vik(i,k) = yes;
+    while(isfeasible == 0,
+        isfeasible = 1;
+        solve nlp_single_cont minimize fix_ck using nlp;
+        loop((i,g),
+            if(v_pgk.l(i,g,k)$(actgenk(i,g,k) and activek(k)) > p_pg_u,
+                v_pgk.fx(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_pg_u;
+                actset_pgk(i,g,k)$(actgenk(i,g,k) and activek(k)) = no;
+                isfeasible = 0;
+                );
+            if(v_pgk.l(i,g,k)$(actgenk(i,g,k) and activek(k)) < p_pg_l,
+                v_pgk.fx(i,g,k)$(actgenk(i,g,k) and activek(k)) = p_pg_l;
+                actset_pgk(i,g,k)$(actgenk(i,g,k) and activek(k)) = no;
+                isfeasible = 0;
+                );
+            );
+        loop((i,g),
+            if(v_qgk(i,g,k)$(actgenk(i,g,k) and activek(k) > p_qg_u,
+                v_qgk.fx(i,g,k)$(actgenk(i,g,k) and activek(k) = p_qg_u;
+                actset_vik(i,k)$(actgenk(i,g,k) and activek(k) = no;
+                isfeasible = 0;
+                );
+            if(v_qgk(i,g,k)$(actgenk(i,g,k) and activek(k) < p_qg_l,
+                v_qgk.fx(i,g,k)$(actgenk(i,g,k) and activek(k) = p_qg_l;
+                actset_vik(i,k)$(actgenk(i,g,k) and activek(k) = no;
+                isfeasible = 0;
+                );
+            );
+        );
+else
 * Initialize
     v_xgkPp.l(i,g,k0)$actgenk(i,g,k0) = 0;
     v_xgkPn.l(i,g,k0)$actgenk(i,g,k0) = 0;
@@ -1657,7 +1732,7 @@ $else
     p_xgkQp(i,g,k0) = v_xgkQp.l(i,g,k0);
     p_xgkQn(i,g,k0) = v_xgkQn.l(i,g,k0);
     solve fix_single_cont minimize fix_ck using nlp;
-$endif
+    );
 
     sol_v_vik(i,k0) = v_vik.l(i,k0);
     sol_v_thetaik(i,k0) = (180/pi)* v_thetaik.l(i,k0);
