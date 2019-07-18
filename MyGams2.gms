@@ -1754,7 +1754,7 @@ put soltext2;
 loop(k,
     put '--contigency' /;
     put 'lable' /;
-    put k.tl /;
+    put k.tl:25 /;
     put '--bus section' /;
     put 'i, v, theta, b' /;
     loop(i,
