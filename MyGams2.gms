@@ -96,7 +96,11 @@ sets
     ia(i,a) buses in area a
 
     actset_pgk(i,g,k)
+    actset_pgk_lq(i,g,k)
+    actset_pgk_gq(i,g,k)
     actset_vik(i,k)
+    actset_vik_lq(i,k)
+    actset_vik_gq(i,k)
 
 ;
 
@@ -844,6 +848,8 @@ equations
     eq_84(i,g,k)
 
     eq_85_1(i,g,k)
+    eq_85_2(i,g,k)
+    eq_85_3(i,g,k)
 
 *Mixed Integer Programming Formulation
 *    eq_87(k,i,g)
@@ -855,6 +861,9 @@ equations
 *Generator Reactive Power Contingency Response
 
     eq_93_1(i,g,k)
+    eq_93_2(i,g,k)
+    eq_93_3(i,g,k)
+
     eq_98(i,g,k)
     eq_99(i,g,k)
     eq_100(i,g,k)
@@ -1415,8 +1424,20 @@ model fix_single_cont /
 eq_85_1(i,g,k)$(gkp(i,g,k) and activek(k) and actset_pgk(i,g,k))..
     v_pgk(i,g,k) =e= p_pg_l(i,g) + p_alphag(i,g)*v_deltak(k);
 
+eq_85_2(i,g,k)$(gkp(i,g,k) and activek(k) and actset_pgk_lq(i,g,k))..
+    v_pgk(i,g,k) =l= p_pg_l(i,g) + p_alphag(i,g)*v_deltak(k);
+
+eq_85_3(i,g,k)$(gkp(i,g,k) and activek(k) and actset_pgk_gq(i,g,k))..
+    v_pgk(i,g,k) =g= p_pg_l(i,g) + p_alphag(i,g)*v_deltak(k);
+
 eq_93_1(i,g,k)$(gkp(i,g,k) and activek(k) and actset_vik(i,k))..
     v_vik(i,k) =e= p_vi(i);
+
+eq_93_2(i,g,k)$(gkp(i,g,k) and activek(k) and actset_vik_lq(i,k))..
+    v_vik(i,k) =l= p_vi(i);
+
+eq_93_3(i,g,k)$(gkp(i,g,k) and activek(k) and actset_vik_gq(i,k))..
+    v_vik(i,k) =g= p_vi(i);
 
 bineq_89(i,g,k)$(gkp(i,g,k) and activek(k))..
     p_pg_u(i,g) - v_pgk(i,g,k) =l= p_Mp*v_xgkPp(i,g,k);
@@ -1501,7 +1522,11 @@ model nlp_single_cont /
     eq_83
     eq_84
     eq_85_1
+    eq_85_2
+    eq_85_3
     eq_93_1
+    eq_93_2
+    eq_93_3
 
     fix_obj
 /;
@@ -1683,17 +1708,23 @@ $elseif  %method% == nlp
     isfeasible = 0;
     actset_pgk(i,g,k) = yes;
     actset_vik(i,k) = yes;
+    actset_pgk_lq(i,g,k) = no;
+    actset_pgk_gq(i,g,k) = no;
+    actset_vik_lq(i,k) = no;
+    actset_vik_gq(i,k) = no;
     while((isfeasible < 1),
         isfeasible = 1;
         solve nlp_single_cont minimize fix_ck using nlp;
         loop((i,g,k)$(actgenk(i,g,k) and activek(k)),
             if(v_pgk.l(i,g,k) > p_pg_u(i,g),
                 v_pgk.fx(i,g,k) = p_pg_u(i,g);
+                actset_pgk_lq(i,g,k) = yes;
                 actset_pgk(i,g,k) = no;
                 isfeasible = 0;
                 );
             if(v_pgk.l(i,g,k) < p_pg_l(i,g),
                 v_pgk.fx(i,g,k) = p_pg_l(i,g);
+                actset_pgk_gq(i,g,k) = yes;
                 actset_pgk(i,g,k) = no;
                 isfeasible = 0;
                 );
@@ -1702,11 +1733,13 @@ $elseif  %method% == nlp
             if(v_qgk.l(i,g,k) > p_qg_u(i,g),
                 v_qgk.fx(i,g,k) = p_qg_u(i,g);
                 actset_vik(i,k) = no;
+                actset_vik_lq(i,k) = yes;
                 isfeasible = 0;
                 );
             if(v_qgk.l(i,g,k) < p_qg_l(i,g),
                 v_qgk.fx(i,g,k) = p_qg_l(i,g);
                 actset_vik(i,k) = no;
+                actset_vik_gq(i,k) = yes;
                 isfeasible = 0;
                 );
             );
