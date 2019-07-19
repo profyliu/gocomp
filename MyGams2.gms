@@ -15,7 +15,7 @@ $if not set NetworkModel $set NetworkModel model_name
 $if not set havedata $set havedata yes
 $if not set firstNcont $set firstNcont 10000
 $if not set ncores $set ncores 24
-$if not set method $set method nlp
+$if not set method $set method minlp
 $if not set have_sol1_gdx $set have_sol1_gdx yes
 
 
