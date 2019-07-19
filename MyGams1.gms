@@ -774,7 +774,7 @@ p_Mv = max(smax(i, p_vi_u(i)) - smin(i, p_viK_l(i)), smax(i, p_viK_u(i)) - smin(
 p_Mq = smax((i,g),  p_qg_u(i,g)) - smin((i,g), p_qg_l(i,g));
 p_Mp = smax((i,g),  p_pg_u(i,g)) - smin((i,g), p_pg_l(i,g));
 *?
-p_M = p_Mp;
+p_M = p_Mp+50;
 
 *display p_MV, p_Mq, p_Mp, p_M;
 
