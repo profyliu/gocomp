@@ -1422,13 +1422,13 @@ model fix_single_cont /
 /;
 
 eq_85_1(i,g,k)$(gkp(i,g,k) and activek(k) and actset_pgk(i,g,k))..
-    v_pgk(i,g,k) =e= p_pg_l(i,g) + p_alphag(i,g)*v_deltak(k);
+    v_pgk(i,g,k) =e= p_pg(i,g) + p_alphag(i,g)*v_deltak(k);
 
 eq_85_2(i,g,k)$(gkp(i,g,k) and activek(k) and actset_pgk_lq(i,g,k))..
-    v_pgk(i,g,k) =l= p_pg_l(i,g) + p_alphag(i,g)*v_deltak(k);
+    v_pgk(i,g,k) =l= p_pg(i,g) + p_alphag(i,g)*v_deltak(k);
 
 eq_85_3(i,g,k)$(gkp(i,g,k) and activek(k) and actset_pgk_gq(i,g,k))..
-    v_pgk(i,g,k) =g= p_pg_l(i,g) + p_alphag(i,g)*v_deltak(k);
+    v_pgk(i,g,k) =g= p_pg(i,g) + p_alphag(i,g)*v_deltak(k);
 
 eq_93_1(i,g,k)$(gkp(i,g,k) and activek(k) and actset_vik(i,k))..
     v_vik(i,k) =e= p_vi(i);
