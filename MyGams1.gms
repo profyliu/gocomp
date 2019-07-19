@@ -583,7 +583,8 @@ p_sfK_u(from,to,ckt) = TransformerData(from,to,ckt,'RATC1') / p_s_tilde;
 *Switched Shunt Data
 
 v_biCS.l(i) =  SwitchedShuntData(i,'BINIT') / p_s_tilde;
-
+p_bics_u(i) = 0;
+p_bics_l(i) = 0;
 
 set BLindex /BL1*BL8/;
 alias(BLindex,BLindex1);
