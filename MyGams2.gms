@@ -560,7 +560,8 @@ p_sfK_u(from,to,ckt) = TransformerData(from,to,ckt,'RATC1') / p_s_tilde;
 *Switched Shunt Data
 
 v_biCS.l(i) =  SwitchedShuntData(i,'BINIT') / p_s_tilde;
-
+p_bics_u(i) = 0;
+p_bics_l(i) = 0;
 
 set BLindex /BL1*BL8/;
 alias(BLindex,BLindex1);
@@ -751,7 +752,7 @@ p_Mv = max(smax(i, p_vi_u(i)) - smin(i, p_viK_l(i)), smax(i, p_viK_u(i)) - smin(
 p_Mq = smax((i,g),  p_qg_u(i,g)) - smin((i,g), p_qg_l(i,g));
 p_Mp = smax((i,g),  p_pg_u(i,g)) - smin((i,g), p_pg_l(i,g));
 *?
-p_M = p_Mp;
+p_M = p_Mp+1;
 
 *display p_MV, p_Mq, p_Mp, p_M;
 
