@@ -15,7 +15,7 @@ $if not set NetworkModel $set NetworkModel model_name
 $if not set havedata $set havedata no
 $if not set ncores $set ncores 24
 $if not set topncont $set topncont 200
-$if not set final_solve $set final_solve minlp
+$if not set final_solve $set final_solve rminlp
 
 option threads=%ncores%;
 option nlp=conopt4, mip=cplex, rminlp=conopt4, minlp=dicopt;
