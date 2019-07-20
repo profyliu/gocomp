@@ -847,6 +847,7 @@ equations
     eq_83(i,i,ckt,k)  at the destination bus with soft constraint violation
 *Generator Real Power Contingency Response
     eq_84(i,g,k)
+    eq_84_2(i,g,k)
 
     eq_85_1(i,g,k)
     eq_85_2(i,g,k)
@@ -1086,6 +1087,7 @@ eq_83(from,to,ckt,k)$(actxfmr(from,to,ckt) and actxfmrk(from,to,ckt,k) and activ
 *84
 eq_84(i,g,k)$(actgenk(i,g,k) and (not gkp(i,g,k)) and activek(k))..
     v_pgk(i,g,k) =e= v_pg(i,g);
+
 
 
 
@@ -1357,6 +1359,8 @@ model lin_Q_model /
     lin_obj_reactive
 /;
 
+eq_84_2(i,g,k)$(actgenk(i,g,k) and (not gkp(i,g,k)) and activek(k))..
+    v_pgk(i,g,k) =e= p_pg(i,g);
 
 fixeq_89(i,g,k)$(gkp(i,g,k) and activek(k) and (p_xgkPp(i,g,k) eq 0))..
     p_pg_u(i,g) - v_pgk(i,g,k) =l= 0;
@@ -1408,7 +1412,7 @@ model fix_single_cont /
     eq_80
     eq_81
     eq_83
-    eq_84
+    eq_84_2
 
     fixeq_89
     fixeq_90
@@ -1421,6 +1425,8 @@ model fix_single_cont /
     fix_obj
 
 /;
+
+
 
 eq_85_1(i,g,k)$(gkp(i,g,k) and activek(k) and actset_pgk(i,g,k))..
     v_pgk(i,g,k) =e= p_pg(i,g) + p_alphag(i,g)*v_deltak(k);
@@ -1486,7 +1492,7 @@ model minlp_single_cont /
     eq_80
     eq_81
     eq_83
-    eq_84
+    eq_84_2
 
     bineq_89
     bineq_90
@@ -1521,7 +1527,7 @@ model nlp_single_cont /
     eq_80
     eq_81
     eq_83
-    eq_84
+    eq_84_2
     eq_85_1
     eq_85_2
     eq_85_3
