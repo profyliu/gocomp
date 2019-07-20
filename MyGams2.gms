@@ -1788,7 +1788,7 @@ put soltext2;
 loop(k,
     put '--contigency' /;
     put 'lable' /;
-    put k.tl:30 /;
+    put "'" k.tl:30 "'"/;
     put '--bus section' /;
     put 'i, v, theta, b' /;
     loop(i,
@@ -1797,7 +1797,7 @@ loop(k,
     put '--generator section' /;
     put 'i, uid, p, q' /;
     loop((i,g)$gen(i,g),
-        put  i.tl ','  g.tl  ',' sol_v_pgk(i,g,k):25:15 ',' sol_v_qgk(i,g,k):25:15 /;
+        put  i.tl ',' "'" g.tl "'" ',' sol_v_pgk(i,g,k):25:15 ',' sol_v_qgk(i,g,k):25:15 /;
     );
     put '--delta section' /;
     put 'delta' /;
