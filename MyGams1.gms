@@ -1824,7 +1824,7 @@ time_remaining = avail_time - (timeelapsed - all_start);
 
 ext_single_cont.solprint = no;
 ext_single_cont.optfile = 1;
-ext_single_cont.reslim = time_remaining - 60;
+ext_single_cont.reslim = time_remaining - 65;
 
 
 
